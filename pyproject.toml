@@ -1,0 +1,14 @@
+[project]
+name = "fe_data_collector"
+version = "0.1"
+requires-python = ">=3.8"
+dependencies = [
+  "paramiko",
+]
+
+[project.scripts]
+fe-data-collector = "fe_data_collector.main:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
