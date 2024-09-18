@@ -15,12 +15,12 @@ parts:
   fe-data-collector:
     # See 'snapcraft plugins'
     plugin: python
-    source: ./
-    python-requirements: 
-    - src/requirements.txt
-
+    source: .
+    python-packages:
+      - pip==20.0.2
 apps:
   fe-data-collector:
-    command: fe-data-collector/main.py
+    command: bin/fe-data-collector
     plugs:
       - hardware-observe
+      - ssh-keys
