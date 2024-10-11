@@ -16,8 +16,8 @@ parts:
     # See 'snapcraft plugins'
     plugin: python
     source: .
-    python-packages:
-      - pip==20.0.2
+    # python-packages:
+    #   - pip==20.0.2
 apps:
   fe-data-collector:
     command: bin/fe-data-collector

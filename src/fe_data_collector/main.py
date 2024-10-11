@@ -21,6 +21,7 @@ def parse_args():
         help="JSON file containing targets to scrape. Must have SSH key imported.",
     )
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--key", required=True)
 
     return parser.parse_args()
 
@@ -56,10 +57,10 @@ SCRAPE_COMMANDS = [
 ]
 
 
-def put_file(host, username, dirname, filename, data):
+def put_file(host, username, dirname, filename, data, key):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(host, username=username)
+    ssh.connect(host, username=username, key_filename=key)
     sftp = ssh.open_sftp()
     try:
         sftp.mkdir(dirname)
@@ -90,12 +91,13 @@ def main():
                 if not isinstance(cmd, CommandWithScript):
                     result = ssh(host, cmd.payload)
                 else:
-                    put_file(host, SSH_USER, "/tmp", f"{cmd.name}.py", cmd.payload)
+                    put_file(host, SSH_USER, "/tmp", f"{cmd.name}.py", cmd.payload, args.key)
                     result = ssh(host, f"/tmp/{cmd.name}.py")
                 host_payload[host].update({cmd.name: result})
             data_payload.update(host_payload)
-    with open("scrape.result.txt", "w") as fh:
+    with open("scrape.result.json", "w") as fh:
         fh.write(json.dumps(data_payload))
+    print("Finished collecting data! ✅")
 
 
 if __name__ == "__main__":
