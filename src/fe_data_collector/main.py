@@ -82,19 +82,24 @@ def main():
     data_payload = {}
     if args.hosts:
         loaded_h = json.loads(open(args.hosts).read())
-        for host in loaded_h:
-            # TODO: Host could be a dictionary, in the future.
-            host_payload = {host: {}}
-            # TODO: Hosts should be an object on which we execute commands.
-            result = ""
-            for cmd in SCRAPE_COMMANDS:
-                if not isinstance(cmd, CommandWithScript):
-                    result = ssh(host, cmd.payload)
-                else:
-                    put_file(host, SSH_USER, "/tmp", f"{cmd.name}.py", cmd.payload, args.key)
-                    result = ssh(host, f"/tmp/{cmd.name}.py")
-                host_payload[host].update({cmd.name: result})
-            data_payload.update(host_payload)
+        try:
+            for host in loaded_h:
+                # TODO: Host could be a dictionary, in the future.
+                host_payload = {host: {}}
+                # TODO: Hosts should be an object on which we execute commands.
+                result = ""
+                for cmd in SCRAPE_COMMANDS:
+                    if not isinstance(cmd, CommandWithScript):
+                        result = ssh(host, cmd.payload)
+                    else:
+                        put_file(host, SSH_USER, "/tmp", f"{cmd.name}.py", cmd.payload, args.key)
+                        result = ssh(host, f"/tmp/{cmd.name}.py")
+                    host_payload[host].update({cmd.name: result})
+                data_payload.update(host_payload)
+        # Don't fail for host unreachble
+        except subprocess.CalledProcessError:
+            # TODO: Make this smarter
+            pass
     with open("scrape.result.json", "w") as fh:
         fh.write(json.dumps(data_payload))
     print("Finished collecting data! ✅")
